@@ -1,4 +1,6 @@
 import { acceptHMRUpdate, defineStore } from "pinia"
+import { useNotificationsStore } from "./notification"
+import { ref } from 'vue'
 
 interface User {
   uid: string,
@@ -6,20 +8,22 @@ interface User {
   photoUrl: string
 }
 
-export const useUserStore = defineStore("UserStore", {
-  state: () => ({
-    user: null as User || null,
-  }),
-  actions: {
-    async login(user: string, password: string) {
-      this.user = await verifyCredentials(user, password)
-    },
+export const useUserStore = defineStore("UserStore", () =>  {
+  const user = ref<User | null>(null);
+  const notification = useNotificationsStore()
+  
+  async function login(user: string, password: string) {
 
-    logout() {
-      this.user = null;
-      this.router.push('/login')
-    },
-  },
+    user.value = await verifyCredentials(user, password)
+  }
+
+  function logout() {
+    user.value = null;
+
+    notification.showNotifications('test')
+  }
+
+  return { user, login, logout }
   // getters: {
   //   firstName() {
   //     return this.user.split(" ")[0]
